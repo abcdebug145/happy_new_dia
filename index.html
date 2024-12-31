@@ -3,19 +3,24 @@
 
 <head>
     <title>Happy New Year</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background: #000;
-            background-image: url('https://cdnjs.cloudflare.com/ajax/libs/browser-logos/73.0.0/archive/chrome_1-11/chrome_1-11_256x256.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: url('/mèo\ tết.jpg') center 30%/cover no-repeat;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         canvas {
-            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background: transparent;
         }
 
         .happy-new-year {
@@ -23,11 +28,13 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #FFD700;
-            font-family: 'Arial', sans-serif;
+            color: #ffffff;
+            font-family: 'Great Vibes', sans-serif;
             font-size: 72px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             animation: glow 2s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 1000;
         }
 
         @keyframes glow {
@@ -44,13 +51,12 @@
 
 <body>
     <canvas id="canvas"></canvas>
-    <div class="happy-new-year">Happy New Year 2025</div>
+    <div class="happy-new-year" style="text-align: center;">Habibi niu dia Nhi iu ỏoooooooooo?!?!?!?!?!</div>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const particles = [];
-        const fireworks = [];
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -66,11 +72,11 @@
                 this.y = y;
                 this.color = color;
                 this.velocity = {
-                    x: (Math.random() - 0.5) * 8,
-                    y: (Math.random() - 0.5) * 8
+                    x: (Math.random() - 0.5) * 6,
+                    y: (Math.random() - 0.5) * 6
                 };
                 this.alpha = 1;
-                this.decay = Math.random() * 0.015 + 0.015;
+                this.decay = Math.random() * 0.02 + 0.01;
             }
 
             draw() {
@@ -93,7 +99,7 @@
 
         function createFirework(x, y) {
             const colors = ['#ff0000', '#ffa500', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#ee82ee'];
-            const particleCount = 100;
+            const particleCount = 200;
 
             for (let i = 0; i < particleCount; i++) {
                 const color = colors[Math.floor(Math.random() * colors.length)];
@@ -103,24 +109,21 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             for (let i = particles.length - 1; i >= 0; i--) {
                 particles[i].update();
                 particles[i].draw();
-
                 if (particles[i].alpha <= 0) {
                     particles.splice(i, 1);
                 }
             }
         }
 
-        canvas.addEventListener('click', (e) => {
+        window.addEventListener('click', (e) => {
             createFirework(e.clientX, e.clientY);
         });
 
-        // Tự động bắn pháo hoa
         setInterval(() => {
             createFirework(
                 Math.random() * canvas.width,
