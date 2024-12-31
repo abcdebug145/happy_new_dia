@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Happy New Year</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yêu bà Nhi dữ lắm</title>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background: url('meow-tet.jpg') center 30%/cover no-repeat;
+            background: url('assets/images/meow-tet.jpg') center 30%/cover no-repeat;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -29,7 +31,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: #ffffff;
-            font-family: 'Great Vibes', sans-serif;
+            font-family: 'Great Vibes', cursive;
             font-size: 72px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             animation: glow 2s ease-in-out infinite alternate;
@@ -39,11 +41,11 @@
 
         @keyframes glow {
             from {
-                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #FFD700;
+                text-shadow: 0 0 10px #fff, 0 0 20px #ff0000, 0 0 30px #ff0000;
             }
 
             to {
-                text-shadow: 0 0 20px #fff, 0 0 30px #FF0000, 0 0 40px #FF0000;
+                text-shadow: 0 0 20px #fff, 0 0 30px #ff0000, 0 0 40px #ff0000;
             }
         }
     </style>
@@ -51,12 +53,17 @@
 
 <body>
     <canvas id="canvas"></canvas>
-    <div class="happy-new-year" style="text-align: center;">Habibi niu dia Nhi iu ỏoooooooooo?!?!?!?!?!</div>
+    <div class="happy-new-year">Habibi niu dia Nhi iu ỏoooooooooo?!?!?!?!?!</div>
+    <div id="score"
+        style="position: fixed; top: 10px; right: 10px; color: white; font-size: 24px; font-family: Arial, sans-serif; z-index: 1000;">
+        Score: 0</div>
 
     <script>
+        let score = 0;
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const particles = [];
+        const images = ['assets/images/anh1.jpg', 'assets/images/anh2.jpg', 'assets/images/anh3.jpg', 'assets/images/anh4.jpg', 'assets/images/anh5.jpg', 'assets/images/anh6.jpg', 'assets/images/anh7.jpg'];
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -71,21 +78,23 @@
                 this.x = x;
                 this.y = y;
                 this.color = color;
+                this.radius = Math.random() * 2 + 1;
                 this.velocity = {
-                    x: (Math.random() - 0.5) * 6,
-                    y: (Math.random() - 0.5) * 6
+                    x: (Math.random() - 0.5) * 8,
+                    y: (Math.random() - 0.5) * 8
                 };
                 this.alpha = 1;
-                this.decay = Math.random() * 0.02 + 0.01;
+                this.decay = Math.random() * 0.015 + 0.015;
             }
 
             draw() {
                 ctx.save();
                 ctx.globalAlpha = this.alpha;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = this.color;
                 ctx.fill();
+                ctx.closePath();
                 ctx.restore();
             }
 
@@ -97,14 +106,54 @@
             }
         }
 
+        class RandomImage {
+            constructor(x, y, image) {
+                this.x = x;
+                this.y = y;
+                this.image = new Image();
+                this.image.src = image;
+                this.size = 120;
+                this.height = 90;
+                this.angle = Math.random() * 360;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.005 + 0.005;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle * Math.PI / 180);
+                ctx.drawImage(this.image, -this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+
+            isClicked(x, y) {
+                const halfSize = this.size / 2;
+                return x >= this.x - halfSize && x <= this.x + halfSize && y >= this.y - halfSize && y <= this.y + halfSize;
+            }
+
+            update() {
+                this.alpha -= this.decay;
+                this.angle += 2;
+            }
+        }
+
         function createFirework(x, y) {
-            const colors = ['#ff0000', '#ffa500', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#ee82ee'];
-            const particleCount = 200;
+            const colors = ['#ff0', '#f0f', '#0ff', '#ff4', '#4ff'];
+            const particleCount = 100;
+            const color = colors[Math.floor(Math.random() * colors.length)];
 
             for (let i = 0; i < particleCount; i++) {
-                const color = colors[Math.floor(Math.random() * colors.length)];
                 particles.push(new Particle(x, y, color));
             }
+        }
+
+        function createRandomImage() {
+            const x = Math.random() * canvas.width * 0.9;
+            const y = Math.random() * canvas.height * 0.9;
+            const image = images[Math.floor(Math.random() * images.length)];
+            particles.push(new RandomImage(x, y, image));
         }
 
         function animate() {
@@ -121,7 +170,42 @@
         }
 
         window.addEventListener('click', (e) => {
-            createFirework(e.clientX, e.clientY);
+            const x = e.clientX;
+            const y = e.clientY;
+            createFirework(x, y);
+            let clickedImage = false;
+
+            for (let i = 0; i < particles.length; i++) {
+                if (particles[i] instanceof RandomImage && particles[i].isClicked(x, y)) {
+                    score += 10;
+                    clickedImage = true;
+                    document.getElementById('score').innerText = `Score: ${score}`;
+                    break;
+                }
+            }
+
+            if (clickedImage) {
+                if (score % 30 == 0) {
+                    const popup = document.createElement('div');
+                    popup.innerText = `Nhi dủa ghê, được ${score} đỉm lun, xứng đáng được ${score / 30} nụ hun từ anh =))`;
+                    popup.style.position = 'fixed';
+                    popup.style.top = '30%';
+                    popup.style.left = '50%';
+                    popup.style.transform = 'translate(-50%, -50%)';
+                    popup.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+                    popup.style.color = 'white';
+                    popup.style.fontSize = '32px';
+                    popup.style.padding = '30px';
+                    popup.style.borderRadius = '10px';
+                    popup.style.zIndex = '1001';
+                    document.body.appendChild(popup);
+                    setTimeout(() => {
+                        document.body.removeChild(popup);
+                    }, 2000);
+                }
+            } else {
+                createFirework(x, y);
+            }
         });
 
         setInterval(() => {
@@ -130,6 +214,8 @@
                 Math.random() * canvas.height * 0.5
             );
         }, 1500);
+
+        setInterval(createRandomImage, 1500);
 
         animate();
     </script>
